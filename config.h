@@ -34,6 +34,10 @@
 #define RESET_DEBOUNCE_MS    80
 #define RESET_ON_TARGET      3
 
+// --- Fallback Access Point ---
+#define AP_SSID "ESP32-Clock"
+#define AP_PASS "clock1234"
+
 // --- OLED icons position ---
 #define WIFI_ICON_W  16
 #define WIFI_ICON_H  11

@@ -57,6 +57,10 @@ unsigned long lastWeatherSpinUpdate = 0;
 unsigned long lastNtpBlink          = 0;
 bool ntpBlinkState = false;
 bool          clientConnected    = false;
+bool          apMode             = false;
+unsigned long restartAt          = 0;
+unsigned long noWifiUntil        = 0;
+unsigned long apInfoUntil        = 0;
 bool          saveFeedback       = false;
 unsigned long saveFeedbackStart  = 0;
 
@@ -147,6 +151,9 @@ void setup() {
 
 // ============================================================
 void loop() {
+  // Delayed restart (used after saving settings in AP mode)
+  if (restartAt > 0 && millis() >= restartAt) ESP.restart();
+
   // Check for 3x ON reset sequence
   checkLiveReset();
 

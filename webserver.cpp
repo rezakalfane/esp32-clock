@@ -13,7 +13,7 @@ static String zeroPad(int v) {
 
 static String buildHTML() {
   String html = String(INDEX_HTML);
-  html.replace("%IP%",           WiFi.localIP().toString());
+  html.replace("%IP%",           apMode ? WiFi.softAPIP().toString() : WiFi.localIP().toString());
   html.replace("%SSID%",         wifiSSID);
   html.replace("%LAT%",          latitude);
   html.replace("%LON%",          longitude);
@@ -62,6 +62,7 @@ void startWebServer() {
     savePreferences();
     saveFeedback      = true;
     saveFeedbackStart = millis();
+    if (apMode) restartAt = millis() + 3000; // restart after feedback to reconnect with new credentials
 
     // Recompute LED cycle with new schedule
     DateTime now = rtc.now();

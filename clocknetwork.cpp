@@ -111,14 +111,22 @@ void wifiTask(void* param) {
     xTaskCreatePinnedToCore(ntpTask,     "ntpTask",     4096, NULL, 1, NULL, 0);
     xTaskCreatePinnedToCore(weatherTask, "weatherTask", 8192, NULL, 1, NULL, 0);
   } else {
-    Serial.println("[WiFi] FAILED - offline mode");
+    Serial.println("[WiFi] FAILED — showing no-WiFi then starting AP");
+    noWifiUntil = millis() + 2000;
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    WiFi.softAP(AP_SSID, AP_PASS);
+    apMode      = true;
+    apInfoUntil = millis() + 3000;
+    Serial.print("[AP] SSID: " AP_SSID "  IP: ");
+    Serial.println(WiFi.softAPIP());
+    startWebServer();
   }
   vTaskDelete(NULL);
 }
 
 // --- SSE push to web clients ---
 void pushSSE() {
-  clientConnected = (statusWiFi && events.count() > 0);
+  clientConnected = (events.count() > 0);
   if (!clientConnected) return;
 
   DateTime now   = rtc.now();

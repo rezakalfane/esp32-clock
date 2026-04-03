@@ -103,6 +103,12 @@ static void drawWifiArea(int tempX) {
   int iconX = tempX - WIFI_ICON_W - 4;
   unsigned long ms = millis();
 
+  if (apMode) {
+    u8g2.setFont(u8g2_font_6x10_tf);
+    u8g2.drawStr(iconX, WIFI_ICON_Y + WIFI_ICON_H - 1, "AP");
+    return;
+  }
+
   if (wifiConnecting) {
     if (ms - lastWifiSpinUpdate > 200) {
       lastWifiSpinUpdate = ms;
@@ -197,10 +203,17 @@ void drawDisplay(DateTime now, float temp) {
   // Divider
   u8g2.drawHLine(0, 20, 85);
 
-  // Bottom row: feedback message or date + icons
-  if (saveFeedback && millis() - saveFeedbackStart < 2000) {
+  // Bottom row: save feedback > no-WiFi notice > AP info > normal
+  unsigned long ms_now = millis();
+  if (saveFeedback && ms_now - saveFeedbackStart < 2000) {
     u8g2.setFont(u8g2_font_5x8_tf);
     u8g2.drawUTF8(0, 31, "Param\xc3\xa8tres enregistr\xc3\xa9s");
+  } else if (noWifiUntil > 0 && ms_now < noWifiUntil) {
+    u8g2.setFont(u8g2_font_6x10_tf);
+    u8g2.drawStr(0, 31, "Pas de WiFi...");
+  } else if (apInfoUntil > 0 && ms_now < apInfoUntil) {
+    u8g2.setFont(u8g2_font_5x8_tf);
+    u8g2.drawStr(0, 31, AP_SSID "  192.168.4.1");
   } else {
     saveFeedback = false;
     u8g2.setFont(u8g2_font_6x10_tf);

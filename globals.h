@@ -42,6 +42,10 @@ extern unsigned long lastWeatherSpinUpdate;
 extern unsigned long lastNtpBlink;
 extern bool ntpBlinkState;
 extern bool          clientConnected;
+extern bool          apMode;
+extern unsigned long restartAt;
+extern unsigned long noWifiUntil;
+extern unsigned long apInfoUntil;
 extern bool          saveFeedback;
 extern unsigned long saveFeedbackStart;
 
