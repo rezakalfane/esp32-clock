@@ -5,6 +5,7 @@
 #include "config.h"
 #include "preferences.h"
 #include "led.h"
+#include "display.h"
 #include <WiFi.h>
 
 static String zeroPad(int v) {
@@ -60,8 +61,7 @@ void startWebServer() {
     activeDays = newDays;
 
     savePreferences();
-    saveFeedback      = true;
-    saveFeedbackStart = millis();
+    triggerNotif("Param\xc3\xa8tres enregistr\xc3\xa9s", 2000, true, true);
     if (apMode) restartAt = millis() + 3000; // restart after feedback to reconnect with new credentials
 
     // Recompute LED cycle with new schedule

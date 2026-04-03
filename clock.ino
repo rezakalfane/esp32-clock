@@ -59,10 +59,15 @@ bool ntpBlinkState = false;
 bool          clientConnected    = false;
 bool          apMode             = false;
 unsigned long restartAt          = 0;
-unsigned long noWifiUntil        = 0;
-unsigned long apInfoUntil        = 0;
-bool          saveFeedback       = false;
-unsigned long saveFeedbackStart  = 0;
+// --- Sliding notification ---
+NotifState    notifState    = NOTIF_IDLE;
+int           notifSlideY   = 11;
+unsigned long notifLastStep = 0;
+unsigned long notifShowUntil = 0;
+unsigned long notifDuration  = 0;
+char          notifText[32]  = "";
+bool          notifSmallFont = false;
+bool          notifIsUTF8    = false;
 
 // --- Timing ---
 unsigned long lastWeatherFetch = 0;

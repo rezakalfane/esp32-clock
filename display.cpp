@@ -126,43 +126,82 @@ static void drawWifiArea(int tempX) {
   }
 }
 
-// Draw weather icon, weather spinner, or NTP T / client C indicator
-static void drawBottomRightIcons() {
+// Draw weather icon, weather spinner, or NTP T / client C indicator (yOff slides with date row)
+static void drawBottomRightIcons(int yOff) {
   unsigned long ms = millis();
 
   if (ntpSyncing && clientConnected) {
-    // Alternate T and C while both are active
     if (ms - lastNtpBlink > 400) {
       lastNtpBlink  = ms;
       ntpBlinkState = !ntpBlinkState;
     }
     u8g2.setFont(u8g2_font_6x10_tf);
-    u8g2.drawStr(NTP_ICON_X, 31, ntpBlinkState ? "T" : "C");
+    u8g2.drawStr(NTP_ICON_X, 31 + yOff, ntpBlinkState ? "T" : "C");
   } else if (ntpSyncing) {
-    // Blink T only
     if (ms - lastNtpBlink > 400) {
       lastNtpBlink  = ms;
       ntpBlinkState = !ntpBlinkState;
     }
     if (ntpBlinkState) {
       u8g2.setFont(u8g2_font_6x10_tf);
-      u8g2.drawStr(NTP_ICON_X, 31, "T");
+      u8g2.drawStr(NTP_ICON_X, 31 + yOff, "T");
     }
   } else if (clientConnected) {
-    // Show C persistently while a client is connected
     u8g2.setFont(u8g2_font_6x10_tf);
-    u8g2.drawStr(NTP_ICON_X, 31, "C");
+    u8g2.drawStr(NTP_ICON_X, 31 + yOff, "C");
   }
 
-  // Weather spinner or icon
   if (weatherFetchInProgress) {
     if (ms - lastWeatherSpinUpdate > 150) {
       lastWeatherSpinUpdate = ms;
       weatherSpinFrame = (weatherSpinFrame + 1) % RSPIN_FRAMES;
     }
-    u8g2.drawBitmap(ICON_X, ICON_Y, 2, 11, rspinFrames[weatherSpinFrame]);
+    u8g2.drawBitmap(ICON_X, ICON_Y + yOff, 2, 11, rspinFrames[weatherSpinFrame]);
   } else if (statusWeather) {
-    u8g2.drawBitmap(ICON_X, ICON_Y, 2, 11, getWeatherIcon(weatherCode));
+    u8g2.drawBitmap(ICON_X, ICON_Y + yOff, 2, 11, getWeatherIcon(weatherCode));
+  }
+}
+
+// --- Sliding notification ---
+#define NOTIF_ROW_H   11   // clip region height: y=21..31
+#define NOTIF_STEP_MS 33   // advance 1px every 33ms → full slide in ~363ms
+
+void triggerNotif(const char* text, unsigned long durationMs, bool smallFont, bool isUTF8) {
+  strncpy(notifText, text, sizeof(notifText) - 1);
+  notifText[sizeof(notifText) - 1] = '\0';
+  notifDuration  = durationMs;
+  notifSmallFont = smallFont;
+  notifIsUTF8    = isUTF8;
+  notifSlideY    = NOTIF_ROW_H;
+  notifState     = NOTIF_ENTERING;
+  notifLastStep  = millis();
+}
+
+static void updateNotifAnim() {
+  if (notifState == NOTIF_IDLE) return;
+  unsigned long now   = millis();
+  int steps = (int)((now - notifLastStep) / NOTIF_STEP_MS);
+  if (steps == 0) return;
+  notifLastStep += (unsigned long)steps * NOTIF_STEP_MS;
+
+  if (notifState == NOTIF_ENTERING) {
+    notifSlideY -= steps;
+    if (notifSlideY <= 0) {
+      notifSlideY   = 0;
+      notifState    = NOTIF_VISIBLE;
+      notifShowUntil = now + notifDuration;
+    }
+  } else if (notifState == NOTIF_VISIBLE) {
+    if (now >= notifShowUntil) {
+      notifState    = NOTIF_LEAVING;
+      notifLastStep = now;
+    }
+  } else if (notifState == NOTIF_LEAVING) {
+    notifSlideY += steps;
+    if (notifSlideY >= NOTIF_ROW_H) {
+      notifSlideY = NOTIF_ROW_H;
+      notifState  = NOTIF_IDLE;
+    }
   }
 }
 
@@ -203,23 +242,25 @@ void drawDisplay(DateTime now, float temp) {
   // Divider
   u8g2.drawHLine(0, 20, 85);
 
-  // Bottom row: save feedback > no-WiFi notice > AP info > normal
-  unsigned long ms_now = millis();
-  if (saveFeedback && ms_now - saveFeedbackStart < 2000) {
-    u8g2.setFont(u8g2_font_5x8_tf);
-    u8g2.drawUTF8(0, 31, "Param\xc3\xa8tres enregistr\xc3\xa9s");
-  } else if (noWifiUntil > 0 && ms_now < noWifiUntil) {
-    u8g2.setFont(u8g2_font_6x10_tf);
-    u8g2.drawStr(0, 31, "Pas de WiFi...");
-  } else if (apInfoUntil > 0 && ms_now < apInfoUntil) {
-    u8g2.setFont(u8g2_font_5x8_tf);
-    u8g2.drawStr(0, 31, AP_SSID "  192.168.4.1");
-  } else {
-    saveFeedback = false;
-    u8g2.setFont(u8g2_font_6x10_tf);
-    u8g2.drawStr(0, 31, dateBuf);
-    drawBottomRightIcons();
+  // Bottom row — sliding notification or normal date+icons
+  updateNotifAnim();
+  u8g2.setClipWindow(0, 21, 127, 31);
+
+  // Date row slides with notifSlideY: y = 20+slideY (31 when idle, 20 when hidden above)
+  int dateY = 20 + notifSlideY;
+  u8g2.setFont(u8g2_font_6x10_tf);
+  u8g2.drawStr(0, dateY, dateBuf);
+  drawBottomRightIcons(notifSlideY - NOTIF_ROW_H);  // offset: 0 when idle, negative when sliding
+
+  // Notification row slides in from below: y = 31+slideY (31 when visible, 42 when hidden below)
+  if (notifState != NOTIF_IDLE) {
+    int notifY = 31 + notifSlideY;
+    u8g2.setFont(notifSmallFont ? u8g2_font_5x8_tf : u8g2_font_6x10_tf);
+    if (notifIsUTF8) u8g2.drawUTF8(0, notifY, notifText);
+    else             u8g2.drawStr(0, notifY, notifText);
   }
+
+  u8g2.setMaxClipWindow();
 
   u8g2.sendBuffer();
 }

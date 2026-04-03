@@ -5,6 +5,7 @@
 #include "webserver.h"
 #include "led.h"
 #include "mercury.h"
+#include "display.h"
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
@@ -112,11 +113,11 @@ void wifiTask(void* param) {
     xTaskCreatePinnedToCore(weatherTask, "weatherTask", 8192, NULL, 1, NULL, 0);
   } else {
     Serial.println("[WiFi] FAILED — showing no-WiFi then starting AP");
-    noWifiUntil = millis() + 2000;
+    triggerNotif("Pas de WiFi...", 2000, false, false);
     vTaskDelay(2000 / portTICK_PERIOD_MS);
     WiFi.softAP(AP_SSID, AP_PASS);
-    apMode      = true;
-    apInfoUntil = millis() + 3000;
+    apMode = true;
+    triggerNotif(AP_SSID "  192.168.4.1", 3000, true, false);
     Serial.print("[AP] SSID: " AP_SSID "  IP: ");
     Serial.println(WiFi.softAPIP());
     startWebServer();

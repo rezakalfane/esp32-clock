@@ -23,6 +23,7 @@ cat > "$SKETCH" << 'SKETCHEOF'
 #include <ESPAsyncWebServer.h>
 #include <time.h>
 #include "config.h"
+#include "globals.h"
 #include "webserver_html.h"
 
 SKETCHEOF

@@ -44,10 +44,16 @@ extern bool ntpBlinkState;
 extern bool          clientConnected;
 extern bool          apMode;
 extern unsigned long restartAt;
-extern unsigned long noWifiUntil;
-extern unsigned long apInfoUntil;
-extern bool          saveFeedback;
-extern unsigned long saveFeedbackStart;
+// --- Sliding notification ---
+enum NotifState { NOTIF_IDLE, NOTIF_ENTERING, NOTIF_VISIBLE, NOTIF_LEAVING };
+extern NotifState    notifState;
+extern int           notifSlideY;
+extern unsigned long notifLastStep;
+extern unsigned long notifShowUntil;
+extern unsigned long notifDuration;
+extern char          notifText[32];
+extern bool          notifSmallFont;
+extern bool          notifIsUTF8;
 
 // --- Timing ---
 extern unsigned long lastWeatherFetch;
