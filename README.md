@@ -122,7 +122,7 @@ clock/
 ┌────────────────────────────────┐
 │  08:26:42    [wifi]  19°C      │  ← time + WiFi icon + temperature
 │─────────────────────           │  ← divider (shorter than full width)
-│  JEU 02/04/2026    T  ⛅       │  ← date + NTP indicator + weather icon
+│  JEU 02/04/2026   T/C  ⛅      │  ← date + NTP/client indicator + weather icon
 └────────────────────────────────┘
 ```
 
@@ -136,6 +136,8 @@ clock/
 | Round spinner (bottom right) | Fetching weather |
 | Weather icon (bottom right) | Weather loaded |
 | Blinking `T` (bottom right) | NTP time sync in progress |
+| `C` (bottom right) | Web client connected — persists while page is open; alternates with `T` if both are active |
+| `Paramètres enregistrés` (bottom row, 2 s) | Confirmation shown on display after saving settings from the web UI |
 
 ---
 
