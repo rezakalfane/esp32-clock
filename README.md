@@ -13,6 +13,7 @@ A smart alarm clock built on an ESP32-C3 Super Mini with a real-time clock, OLED
 - **Weather forecast** — fetches daily weather from Open-Meteo (no API key needed), displayed as icon
 - **NTP sync** — automatically corrects RTC time after WiFi connects, re-syncs hourly
 - **Web UI** — live dashboard + settings page served directly from the ESP32
+- **AP fallback** — if WiFi fails, device creates a `ESP32-Clock` access point so settings can be updated from a phone
 - **Persistent settings** — all parameters saved to NVS flash, survive power cycles
 - **Reset to defaults** — tilt mercury switch 3× ON within 5 seconds to factory reset
 
@@ -138,6 +139,9 @@ clock/
 | Blinking `T` (bottom right) | NTP time sync in progress |
 | `C` (bottom right) | Web client connected — persists while page is open; alternates with `T` if both are active |
 | `Paramètres enregistrés` (bottom row, 2 s) | Confirmation shown on display after saving settings from the web UI |
+| `AP` (WiFi area) | Device is running as an Access Point (no WiFi available) |
+| `Pas de WiFi...` (bottom row, 2 s) | Shown briefly while WiFi connection has failed, before AP starts |
+| `ESP32-Clock  192.168.4.1` (bottom row, 3 s) | AP network info shown after AP starts |
 
 ---
 
@@ -263,6 +267,29 @@ In `config.h`:
 ```
 
 Change to `3600` in winter (CET).
+
+---
+
+## AP Fallback Mode
+
+If the device cannot connect to the configured WiFi network, it automatically starts a fallback Access Point so you can update the credentials from a phone.
+
+### Display sequence on WiFi failure
+
+| Duration | WiFi area | Bottom row |
+|---|---|---|
+| 2 s | Crossed WiFi icon | `Pas de WiFi...` |
+| 3 s | `AP` | `ESP32-Clock  192.168.4.1` |
+| Ongoing | `AP` | Normal date + icons |
+
+### Connecting and reconfiguring
+
+1. On your phone, connect to WiFi network **`ESP32-Clock`** (password: `clock1234`)
+2. Open **`http://192.168.4.1`** in your browser
+3. Enter the correct WiFi SSID and password, then tap **Enregistrer**
+4. The device shows the 2-second save confirmation then restarts automatically to connect with the new credentials
+
+> Weather and NTP are unavailable in AP mode (no internet). The clock, LED schedule, and mercury switch all work normally.
 
 ---
 
