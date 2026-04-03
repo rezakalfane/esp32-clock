@@ -8,13 +8,16 @@ extern U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2;
 
 bool readMercury() {
   bool raw = (digitalRead(MERCURY_PIN) == LOW);
-  if (raw != debouncedMercury) {
-    unsigned long now = millis();
-    if (now - lastMercuryDebounce >= MERCURY_DEBOUNCE_MS) {
-      lastMercuryDebounce = now;
-      debouncedMercury    = raw;
-    }
+  unsigned long now = millis();
+
+  // Reset timer on every raw change — only commit when signal has been stable for full debounce period
+  if (raw != lastRawMercury) {
+    lastRawMercury      = raw;
+    lastMercuryDebounce = now;
+  } else if (now - lastMercuryDebounce >= MERCURY_DEBOUNCE_MS) {
+    debouncedMercury = raw;
   }
+
   return debouncedMercury;
 }
 

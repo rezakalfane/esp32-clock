@@ -93,6 +93,7 @@ void weatherTask(void* param) {
 void wifiTask(void* param) {
   Serial.println("[WiFi] Connecting...");
   wifiConnecting = true;
+  WiFi.setTxPower(WIFI_POWER_8_5dBm);  // Reduce TX power to limit current spikes on battery
   WiFi.begin(wifiSSID.c_str(), wifiPassword.c_str());
 
   int attempts = 0;
@@ -115,6 +116,8 @@ void wifiTask(void* param) {
     Serial.println("[WiFi] FAILED — showing no-WiFi then starting AP");
     triggerNotif("Pas de WiFi...", 2000, false, false);
     vTaskDelay(2000 / portTICK_PERIOD_MS);
+    WiFi.disconnect(true);
+    vTaskDelay(500 / portTICK_PERIOD_MS);  // Let radio settle before switching to AP
     WiFi.softAP(AP_SSID, AP_PASS);
     apMode = true;
     triggerNotif(AP_SSID "  192.168.4.1", 3000, true, false);

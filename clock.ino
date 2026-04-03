@@ -5,6 +5,7 @@
 #include <WiFi.h>
 #include <Preferences.h>
 #include <math.h>
+extern "C" void esp_brownout_disable(void);
 
 #include "config.h"
 #include "globals.h"
@@ -81,6 +82,7 @@ volatile bool ntpSyncing             = false;
 // --- Mercury debounce ---
 unsigned long lastMercuryDebounce = 0;
 bool          debouncedMercury    = false;
+bool          lastRawMercury      = false;
 
 // --- Live reset detection ---
 int           resetToggleCount   = 0;
@@ -94,8 +96,13 @@ bool          resetInitialized   = false;
 
 // ============================================================
 void setup() {
+  // Disable brownout detector — prevents reset loops when WiFi radio draws current spikes on battery
+  esp_brownout_disable();
+
   Serial.begin(115200);
-  while (!Serial) delay(10);
+  // Non-blocking: wait up to 1s for Serial, then continue (battery/standalone mode)
+  unsigned long serialStart = millis();
+  while (!Serial && millis() - serialStart < 1000) delay(10);
   Serial.println("\n=== BOOT ===");
 
   // LED off immediately
@@ -140,6 +147,7 @@ void setup() {
 
   // Init mercury debounce and reset detection
   debouncedMercury = (digitalRead(MERCURY_PIN) == LOW);
+  lastRawMercury   = debouncedMercury;
   resetLastState   = digitalRead(MERCURY_PIN);
   resetInitialized = true;
   resetWindowStart = millis();

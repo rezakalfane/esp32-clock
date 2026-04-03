@@ -67,6 +67,7 @@ extern volatile bool ntpSyncing;
 // --- Mercury debounce ---
 extern unsigned long lastMercuryDebounce;
 extern bool          debouncedMercury;
+extern bool          lastRawMercury;
 
 // --- Live reset detection ---
 extern int           resetToggleCount;

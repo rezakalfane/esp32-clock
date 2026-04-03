@@ -18,7 +18,7 @@
 #define TZ_DST         0
 
 // --- Network ---
-#define WIFI_MAX_ATTEMPTS    50
+#define WIFI_MAX_ATTEMPTS    20
 #define WEATHER_MAX_RETRIES  3
 #define WEATHER_INTERVAL     3600000UL  // 1 hour
 #define NTP_INTERVAL         3600000UL  // 1 hour
@@ -27,7 +27,7 @@
 #define SSE_INTERVAL         1000UL     // 1 second
 
 // --- Mercury debounce ---
-#define MERCURY_DEBOUNCE_MS  150
+#define MERCURY_DEBOUNCE_MS  500
 
 // --- Reset detection ---
 #define RESET_WINDOW_MS      5000

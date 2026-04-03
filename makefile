@@ -1,4 +1,4 @@
-PORT    = /dev/cu.usbmodem2101
+PORT    = /dev/cu.usbmodem101
 FQBN    = esp32:esp32:esp32c3
 BAUD    = 115200
 BUILD   = /tmp/clock_build
