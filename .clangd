@@ -1,0 +1,23 @@
+CompileFlags:
+  Add:
+    - -I/Users/reza.kalfane/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/cores/esp32
+    - -I/Users/reza.kalfane/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/variants/esp32c3
+    - -I/Users/reza.kalfane/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/libraries/WiFi/src
+    - -I/Users/reza.kalfane/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/libraries/Preferences/src
+    - -I/Users/reza.kalfane/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/libraries/Wire/src
+    - -I/Users/reza.kalfane/Documents/Arduino/libraries/RTClib/src
+    - -I/Users/reza.kalfane/Documents/Arduino/libraries/U8g2/src
+    - -I/Users/reza.kalfane/Documents/Arduino/libraries/AsyncTCP/src
+    - -I/Users/reza.kalfane/Documents/Arduino/libraries/ESPAsyncWebServer/src
+    - -I/Users/reza.kalfane/Documents/Arduino/libraries/ArduinoJson/src
+    - -DARDUINO=10819
+    - -DARDUINO_ESP32C3_DEV
+    - -DESP32
+    - -DF_CPU=160000000L
+    - -DARDUINO_ARCH_ESP32
+  Remove:
+    - -W*
+    - -w
+Diagnostics:
+  UnusedIncludes: None
+  MissingIncludes: None
