@@ -56,6 +56,7 @@ unsigned long lastWifiSpinUpdate    = 0;
 unsigned long lastWeatherSpinUpdate = 0;
 unsigned long lastNtpBlink          = 0;
 bool ntpBlinkState = false;
+bool clientConnected = false;
 
 // --- Timing ---
 unsigned long lastWeatherFetch = 0;

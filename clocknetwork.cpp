@@ -118,7 +118,8 @@ void wifiTask(void* param) {
 
 // --- SSE push to web clients ---
 void pushSSE() {
-  if (!statusWiFi || events.count() == 0) return;
+  clientConnected = (statusWiFi && events.count() > 0);
+  if (!clientConnected) return;
 
   DateTime now   = rtc.now();
   float temp     = rtc.getTemperature();

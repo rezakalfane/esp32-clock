@@ -41,6 +41,7 @@ extern unsigned long lastWifiSpinUpdate;
 extern unsigned long lastWeatherSpinUpdate;
 extern unsigned long lastNtpBlink;
 extern bool ntpBlinkState;
+extern bool clientConnected;
 
 // --- Timing ---
 extern unsigned long lastWeatherFetch;

@@ -120,12 +120,20 @@ static void drawWifiArea(int tempX) {
   }
 }
 
-// Draw weather icon, weather spinner, or NTP T indicator
+// Draw weather icon, weather spinner, or NTP T / client C indicator
 static void drawBottomRightIcons() {
   unsigned long ms = millis();
 
-  // Blinking T during NTP sync
-  if (ntpSyncing) {
+  if (ntpSyncing && clientConnected) {
+    // Alternate T and C while both are active
+    if (ms - lastNtpBlink > 400) {
+      lastNtpBlink  = ms;
+      ntpBlinkState = !ntpBlinkState;
+    }
+    u8g2.setFont(u8g2_font_6x10_tf);
+    u8g2.drawStr(NTP_ICON_X, 31, ntpBlinkState ? "T" : "C");
+  } else if (ntpSyncing) {
+    // Blink T only
     if (ms - lastNtpBlink > 400) {
       lastNtpBlink  = ms;
       ntpBlinkState = !ntpBlinkState;
@@ -134,6 +142,10 @@ static void drawBottomRightIcons() {
       u8g2.setFont(u8g2_font_6x10_tf);
       u8g2.drawStr(NTP_ICON_X, 31, "T");
     }
+  } else if (clientConnected) {
+    // Show C persistently while a client is connected
+    u8g2.setFont(u8g2_font_6x10_tf);
+    u8g2.drawStr(NTP_ICON_X, 31, "C");
   }
 
   // Weather spinner or icon

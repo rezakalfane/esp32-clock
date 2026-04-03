@@ -75,6 +75,7 @@ void startWebServer() {
   events.onConnect([](AsyncEventSourceClient* client) {
     Serial.println("[SSE] Client connected");
     client->send("", NULL, millis(), 1000); // retry every 1s
+    clientConnected = true;
   });
 
   server.addHandler(&events);
