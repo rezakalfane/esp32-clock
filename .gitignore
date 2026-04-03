@@ -1,0 +1,6 @@
+/tmp/
+*.o
+*.elf
+*.bin
+*.map
+.DS_Store
