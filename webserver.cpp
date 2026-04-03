@@ -60,6 +60,8 @@ void startWebServer() {
     activeDays = newDays;
 
     savePreferences();
+    saveFeedback      = true;
+    saveFeedbackStart = millis();
 
     // Recompute LED cycle with new schedule
     DateTime now = rtc.now();

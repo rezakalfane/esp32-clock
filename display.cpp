@@ -197,12 +197,16 @@ void drawDisplay(DateTime now, float temp) {
   // Divider
   u8g2.drawHLine(0, 20, 85);
 
-  // Date bottom-left
-  u8g2.setFont(u8g2_font_6x10_tf);
-  u8g2.drawStr(0, 31, dateBuf);
-
-  // Bottom-right icons
-  drawBottomRightIcons();
+  // Bottom row: feedback message or date + icons
+  if (saveFeedback && millis() - saveFeedbackStart < 2000) {
+    u8g2.setFont(u8g2_font_5x8_tf);
+    u8g2.drawUTF8(0, 31, "Param\xc3\xa8tres enregistr\xc3\xa9s");
+  } else {
+    saveFeedback = false;
+    u8g2.setFont(u8g2_font_6x10_tf);
+    u8g2.drawStr(0, 31, dateBuf);
+    drawBottomRightIcons();
+  }
 
   u8g2.sendBuffer();
 }
